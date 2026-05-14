@@ -18,7 +18,7 @@ import { ImageUpload } from './ImageUpload'
 interface ProductFormProps {
   product?: Product | null
   onClose: () => void
-  onSaved: () => void
+  onSaved: (savedProduct: Product, isNew: boolean) => void
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, onSaved }) => {
@@ -39,12 +39,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, onSa
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const [musk5, setMusk5] = useState(product?.prices?.musk?.['5']?.toString() ?? '')
-  const [musk10, setMusk10] = useState(product?.prices?.musk?.['10']?.toString() ?? '')
-  const [musk50, setMusk50] = useState(product?.prices?.musk?.['50']?.toString() ?? '')
+  // New musk sizes: 3ml, 6ml, 9ml
+  const [musk3, setMusk3] = useState(product?.prices?.musk?.['3']?.toString() ?? '')
+  const [musk6, setMusk6] = useState(product?.prices?.musk?.['6']?.toString() ?? '')
+  const [musk9, setMusk9] = useState(product?.prices?.musk?.['9']?.toString() ?? '')
+  // Spray sizes: 30ml, 50ml (removed 100ml)
   const [spray30, setSpray30] = useState(product?.prices?.spray?.['30']?.toString() ?? '')
   const [spray50, setSpray50] = useState(product?.prices?.spray?.['50']?.toString() ?? '')
-  const [spray100, setSpray100] = useState(product?.prices?.spray?.['100']?.toString() ?? '')
 
   const toggleArr = (arr: string[], val: string, set: React.Dispatch<React.SetStateAction<string[]>>) => {
     set(arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val])
@@ -62,15 +63,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, onSa
     try {
       const prices: ProductPrices = {}
       const mk: Record<string, number> = {}
-      if (musk5) mk['5'] = parseFloat(musk5)
-      if (musk10) mk['10'] = parseFloat(musk10)
-      if (musk50) mk['50'] = parseFloat(musk50)
+      if (musk3) mk['3'] = parseFloat(musk3)
+      if (musk6) mk['6'] = parseFloat(musk6)
+      if (musk9) mk['9'] = parseFloat(musk9)
       if (Object.keys(mk).length > 0) prices.musk = mk
 
       const sp: Record<string, number> = {}
       if (spray30) sp['30'] = parseFloat(spray30)
       if (spray50) sp['50'] = parseFloat(spray50)
-      if (spray100) sp['100'] = parseFloat(spray100)
       if (Object.keys(sp).length > 0) prices.spray = sp
 
       if (!prices.musk && !prices.spray) { setError('At least one price must be set'); setSaving(false); return }
@@ -83,13 +83,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, onSa
       }
 
       if (isEditing && product) {
-        const { error: e } = await supabase.from('products').update(data).eq('id', product.id)
+        const { data: updated, error: e } = await supabase.from('products').update(data).eq('id', product.id).select().single()
         if (e) throw e
+        onSaved(updated as Product, false)
       } else {
-        const { error: e } = await supabase.from('products').insert(data)
+        const { data: created, error: e } = await supabase.from('products').insert(data).select().single()
         if (e) throw e
+        onSaved(created as Product, true)
       }
-      onSaved()
       onClose()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save')
@@ -208,9 +209,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, onSa
 
           {/* Musk Prices */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Musk Prices (€)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Musk Prices (DEN)</label>
             <div className="grid grid-cols-3 gap-3">
-              {[{ label: '5ml', val: musk5, set: setMusk5 }, { label: '10ml', val: musk10, set: setMusk10 }, { label: '50ml', val: musk50, set: setMusk50 }].map((p) => (
+              {[{ label: '3ml', val: musk3, set: setMusk3 }, { label: '6ml', val: musk6, set: setMusk6 }, { label: '9ml', val: musk9, set: setMusk9 }].map((p) => (
                 <div key={p.label}>
                   <label className="text-xs text-gray-500">{p.label}</label>
                   <input type="number" value={p.val} onChange={(e) => p.set(e.target.value)} min="0" step="0.01" placeholder="—"
@@ -222,9 +223,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, onSa
 
           {/* Spray Prices */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Spray Prices (€)</label>
-            <div className="grid grid-cols-3 gap-3">
-              {[{ label: '30ml', val: spray30, set: setSpray30 }, { label: '50ml', val: spray50, set: setSpray50 }, { label: '100ml', val: spray100, set: setSpray100 }].map((p) => (
+            <label className="block text-sm font-medium text-gray-700 mb-2">Spray Prices (DEN)</label>
+            <div className="grid grid-cols-2 gap-3">
+              {[{ label: '30ml', val: spray30, set: setSpray30 }, { label: '50ml', val: spray50, set: setSpray50 }].map((p) => (
                 <div key={p.label}>
                   <label className="text-xs text-gray-500">{p.label}</label>
                   <input type="number" value={p.val} onChange={(e) => p.set(e.target.value)} min="0" step="0.01" placeholder="—"

@@ -108,7 +108,7 @@ export const PublicOrder: React.FC = () => {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-bold">€{item.price * item.quantity}</p>
+                  <p className="text-lg font-bold">{item.price * item.quantity} DEN</p>
                   <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                 </div>
               </div>
@@ -135,7 +135,7 @@ export const PublicOrder: React.FC = () => {
             </div>
             <div className="text-center sm:text-right w-full sm:w-auto">
               <p className="text-sm text-gray-500 mb-1">Total Amount</p>
-              <p className="text-3xl font-bold text-amber-500">€{Number(order.total_price || 0).toFixed(2)}</p>
+              <p className="text-3xl font-bold text-amber-500">{Number(order.total_price || 0).toFixed(2)} DEN</p>
             </div>
           </div>
         </div>

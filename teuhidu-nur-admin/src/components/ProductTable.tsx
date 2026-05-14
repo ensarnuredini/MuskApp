@@ -5,19 +5,35 @@ import { supabase } from '../lib/supabase'
 interface ProductTableProps {
   products: Product[]
   onEdit: (product: Product) => void
-  onRefresh: () => void
+  onProductUpdated: (updatedProduct: Product) => void
+  onProductDeleted: (productId: string) => void
 }
 
-export const ProductTable: React.FC<ProductTableProps> = ({ products, onEdit, onRefresh }) => {
+export const ProductTable: React.FC<ProductTableProps> = ({ products, onEdit, onProductUpdated, onProductDeleted }) => {
   const toggleStock = async (product: Product) => {
-    await supabase.from('products').update({ in_stock: !product.in_stock }).eq('id', product.id)
-    onRefresh()
+    const newStockStatus = !product.in_stock
+    const { data, error } = await supabase
+      .from('products')
+      .update({ in_stock: newStockStatus })
+      .eq('id', product.id)
+      .select()
+      .single()
+
+    if (error) {
+      alert(`Failed to update stock status: ${error.message}`)
+      return
+    }
+    onProductUpdated(data as Product)
   }
 
   const handleDelete = async (product: Product) => {
     if (!window.confirm(`Delete "${product.name}"? This cannot be undone.`)) return
-    await supabase.from('products').delete().eq('id', product.id)
-    onRefresh()
+    const { error } = await supabase.from('products').delete().eq('id', product.id)
+    if (error) {
+      alert(`Failed to delete product: ${error.message}`)
+      return
+    }
+    onProductDeleted(product.id)
   }
 
   const getTypeBadges = (product: Product) => {

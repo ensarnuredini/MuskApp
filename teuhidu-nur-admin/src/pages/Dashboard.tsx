@@ -63,6 +63,32 @@ export const Dashboard: React.FC = () => {
     setEditingProduct(null)
   }
 
+  // SPA state update handlers — no page refresh needed
+  const handleProductSaved = (savedProduct: Product, isNew: boolean) => {
+    if (isNew) {
+      setProducts(prev => [savedProduct, ...prev])
+    } else {
+      setProducts(prev => prev.map(p => p.id === savedProduct.id ? savedProduct : p))
+    }
+  }
+
+  const handleProductUpdated = (updatedProduct: Product) => {
+    setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p))
+  }
+
+  const handleProductDeleted = (productId: string) => {
+    setProducts(prev => prev.filter(p => p.id !== productId))
+  }
+
+  // Order status updates also without refresh
+  const handleOrderRefresh = async () => {
+    const { data: ordersData } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false })
+    setOrders((ordersData as Order[]) ?? [])
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Bar */}
@@ -126,9 +152,14 @@ export const Dashboard: React.FC = () => {
           {loading ? (
             <div className="py-16 text-center text-gray-400">Loading...</div>
           ) : activeTab === 'products' ? (
-            <ProductTable products={products} onEdit={handleEdit} onRefresh={fetchData} />
+            <ProductTable
+              products={products}
+              onEdit={handleEdit}
+              onProductUpdated={handleProductUpdated}
+              onProductDeleted={handleProductDeleted}
+            />
           ) : (
-            <OrderTable orders={orders} onRefresh={fetchData} />
+            <OrderTable orders={orders} onRefresh={handleOrderRefresh} />
           )}
         </div>
       </main>
@@ -138,7 +169,7 @@ export const Dashboard: React.FC = () => {
         <ProductForm
           product={editingProduct}
           onClose={handleFormClose}
-          onSaved={fetchData}
+          onSaved={handleProductSaved}
         />
       )}
     </div>

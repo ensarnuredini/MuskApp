@@ -39,7 +39,7 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
   const imageUrl = product.image_url || 'https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=1000&auto=format&fit=crop';
 
   const handleAddToCart = () => {
-    if (size && currentPrice) {
+    if (size && currentPrice && product.in_stock) {
       addToCart({
         productId: product.id,
         productName: product.name,
@@ -52,6 +52,8 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
       onClose();
     }
   };
+
+  const outOfStock = !product.in_stock;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 pb-0 bg-black/80 backdrop-blur-sm" onClick={onClose}>
@@ -68,8 +70,13 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
 
         <div className="overflow-y-auto flex-1 pb-safe">
           <div className="w-full h-64 sm:h-80 relative bg-black">
-            <img src={imageUrl} alt={product.name} className="w-full h-full object-cover opacity-80" />
+            <img src={imageUrl} alt={product.name} className={`w-full h-full object-cover opacity-80 ${outOfStock ? 'grayscale' : ''}`} />
             <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent" />
+            {outOfStock && (
+              <div className="absolute top-4 left-4 bg-red-600/90 text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full backdrop-blur-sm">
+                Out of Stock
+              </div>
+            )}
           </div>
           
           <div className="p-5 -mt-10 relative z-10">
@@ -164,7 +171,7 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
 
                 <div className="text-right">
                   <p className="text-xs text-secondary mb-1">Total</p>
-                  <p className="text-2xl font-serif font-bold text-accent">€{(currentPrice * quantity).toFixed(2)}</p>
+                  <p className="text-2xl font-serif font-bold text-accent">{(currentPrice * quantity).toFixed(2)} DEN</p>
                 </div>
               </div>
             </div>
@@ -174,10 +181,15 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
         <div className="p-4 border-t border-white/10 bg-card/90 backdrop-blur-md pb-safe">
           <button 
             onClick={handleAddToCart}
-            disabled={!size || !currentPrice || !product.in_stock}
-            className="w-full bg-accent hover:bg-accent-hover text-black font-bold py-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest text-sm"
+            disabled={!size || !currentPrice || outOfStock}
+            className={cn(
+              "w-full font-bold py-4 rounded-xl transition-colors uppercase tracking-widest text-sm",
+              outOfStock
+                ? "bg-gray-600 text-gray-300 cursor-not-allowed opacity-60"
+                : "bg-accent hover:bg-accent-hover text-black disabled:opacity-50 disabled:cursor-not-allowed"
+            )}
           >
-            {product.in_stock ? 'Add to Cart' : 'Out of Stock'}
+            {outOfStock ? 'Out of Stock' : 'Add to Cart'}
           </button>
         </div>
       </div>

@@ -61,11 +61,11 @@ export const CartScreen: React.FC = () => {
       const itemLines = items
         .map(
           (item) =>
-            `- ${item.product.name} | ${item.type === 'musk' ? 'Musk' : 'Spray'} ${item.ml}ml x${item.quantity} — €${item.price * item.quantity}`
+            `- ${item.product.name} | ${item.type === 'musk' ? 'Musk' : 'Spray'} ${item.ml}ml x${item.quantity} — ${item.price * item.quantity} DEN`
         )
         .join('\n')
 
-      const message = `🌿 ${STORE_NAME} — New Order\nOrder No: ${orderNumber}\n\n${itemLines}\n\n💰 Total: €${totalPrice()}\n\nView your order details here:\nhttp://172.20.10.3:5173/order/${orderNumber}\n\nPlease confirm my order. Thank you!`
+      const message = `🌿 ${STORE_NAME} — New Order\nOrder No: ${orderNumber}\n\n${itemLines}\n\n💰 Total: ${totalPrice()} DEN\n\nView your order details here:\nhttp://172.20.10.3:5173/order/${orderNumber}\n\nPlease confirm my order. Thank you!`
 
       const url = `https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(message)}`
       
@@ -137,7 +137,7 @@ export const CartScreen: React.FC = () => {
       <View style={styles.bottomBar}>
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>Total</Text>
-          <Text style={styles.totalValue}>€{totalPrice()}</Text>
+          <Text style={styles.totalValue}>{totalPrice()} DEN</Text>
         </View>
         <TouchableOpacity
           style={[styles.orderButton, isSubmitting && { opacity: 0.7 }]}

@@ -115,7 +115,7 @@ export function Cart() {
         <div className="max-w-3xl mx-auto flex flex-col gap-4">
           <div className="flex justify-between items-center">
             <span className="text-secondary uppercase tracking-widest text-xs font-semibold">Total Amount</span>
-            <span className="text-2xl font-serif font-bold text-accent">€{getTotal().toFixed(2)}</span>
+            <span className="text-2xl font-serif font-bold text-accent">{getTotal().toFixed(2)} DEN</span>
           </div>
 
           <button 

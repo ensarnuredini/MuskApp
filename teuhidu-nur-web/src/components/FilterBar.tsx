@@ -4,13 +4,11 @@ interface FilterBarProps {
     season: string[];
     scent: string[];
     intensity: string[];
-    occasion: string[];
   };
   setFilters: React.Dispatch<React.SetStateAction<{
     season: string[];
     scent: string[];
     intensity: string[];
-    occasion: string[];
   }>>;
 }
 
@@ -18,7 +16,6 @@ const CATEGORIES = {
   season: ['spring', 'summer', 'autumn', 'winter'],
   scent: ['oud', 'floral', 'woody', 'fresh', 'oriental', 'citrus', 'musky'],
   intensity: ['light', 'moderate', 'strong'],
-  occasion: ['daily', 'evening', 'special']
 };
 
 export function FilterBar({ filters, setFilters }: FilterBarProps) {

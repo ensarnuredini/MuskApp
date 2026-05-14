@@ -31,8 +31,9 @@ export interface Product {
   created_at: string
 }
 
-export const MUSK_SIZES_ML = [5, 10, 50] as const
-export const SPRAY_SIZES_ML = [30, 50, 100] as const
+export const MUSK_SIZES_ML = [3, 6, 9] as const
+export const SPRAY_SIZES_ML = [30, 50] as const
+export const CURRENCY = 'DEN'
 
 export const SCENT_FAMILIES: ScentFamily[] = ['oud', 'floral', 'woody', 'fresh', 'oriental', 'citrus', 'musky']
 export const SEASONS: Season[] = ['spring', 'summer', 'autumn', 'winter']

@@ -25,7 +25,7 @@ export function CartItem({ item }: CartItemProps) {
         </div>
 
         <div className="flex items-center justify-between mt-2">
-          <p className="font-serif font-bold text-accent">€{(item.price * item.quantity).toFixed(2)}</p>
+          <p className="font-serif font-bold text-accent">{(item.price * item.quantity).toFixed(2)} DEN</p>
           
           <div className="flex items-center gap-3 bg-background rounded-lg p-1 border border-white/5">
             <button 

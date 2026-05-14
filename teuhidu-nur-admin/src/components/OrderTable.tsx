@@ -19,7 +19,7 @@ const statusClasses: Record<OrderStatus, string> = {
   cancelled: 'bg-red-50 text-red-700 border-red-200',
 }
 
-const formatMoney = (value: number) => `EUR ${Number(value || 0).toFixed(2)}`
+const formatMoney = (value: number) => `${Number(value || 0).toFixed(2)} DEN`
 
 export const OrderTable: React.FC<OrderTableProps> = ({ orders, onRefresh }) => {
   const updateStatus = async (order: Order, status: OrderStatus) => {

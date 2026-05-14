@@ -16,7 +16,6 @@ export function Products() {
     season: [] as string[],
     scent: [] as string[],
     intensity: [] as string[],
-    occasion: [] as string[],
   });
 
   useEffect(() => {
@@ -28,8 +27,7 @@ export function Products() {
         const { data, error } = await supabase
           .from('products')
           .select('*')
-          .in('gender', [targetGender, 'unisex'])
-          .eq('in_stock', true);
+          .in('gender', [targetGender, 'unisex']);
 
         if (error) throw error;
         setProducts(data as Product[]);
@@ -54,11 +52,8 @@ export function Products() {
         
       const matchIntensity = filters.intensity.length === 0 || 
         filters.intensity.includes(product.intensity);
-        
-      const matchOccasion = filters.occasion.length === 0 || 
-        product.occasion?.some(o => filters.occasion.includes(o));
 
-      return matchSeason && matchScent && matchIntensity && matchOccasion;
+      return matchSeason && matchScent && matchIntensity;
     });
   }, [products, filters]);
 
@@ -91,7 +86,7 @@ export function Products() {
           <div className="text-center py-20">
             <p className="text-secondary">No products found matching your filters.</p>
             <button 
-              onClick={() => setFilters({ season: [], scent: [], intensity: [], occasion: [] })}
+              onClick={() => setFilters({ season: [], scent: [], intensity: [] })}
               className="mt-4 text-accent hover:underline text-sm font-semibold"
             >
               Clear Filters

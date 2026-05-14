@@ -35,7 +35,7 @@ export const CartItemComponent: React.FC<CartItemProps> = ({
         <Text style={styles.variant}>
           {item.type === 'musk' ? 'Musk' : 'Spray'} · {item.ml}ml
         </Text>
-        <Text style={styles.price}>€{item.price}</Text>
+        <Text style={styles.price}>{item.price} DEN</Text>
       </View>
       <View style={styles.actions}>
         <View style={styles.quantityRow}>

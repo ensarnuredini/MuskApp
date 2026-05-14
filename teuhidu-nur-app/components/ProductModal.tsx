@@ -303,7 +303,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               {/* Price Display */}
               <View style={styles.priceContainer}>
                 <Text style={styles.priceLabel}>Price</Text>
-                <Text style={styles.priceValue}>€{currentPrice}</Text>
+                <Text style={styles.priceValue}>{currentPrice} DEN</Text>
               </View>
 
               {/* Add to Cart Button */}

@@ -94,7 +94,7 @@ export function OrderConfirmation() {
                     <p className="text-xs text-secondary capitalize">{item.type} • {item.ml}ml • Qty: {item.quantity}</p>
                   </div>
                 </div>
-                <p className="font-semibold">€{(item.price * item.quantity).toFixed(2)}</p>
+                <p className="font-semibold">{(item.price * item.quantity).toFixed(2)} DEN</p>
               </div>
             ))}
           </div>
@@ -102,7 +102,7 @@ export function OrderConfirmation() {
 
         <div className="mt-8 pt-8 border-t border-white/5 flex justify-between items-end">
           <span className="text-secondary uppercase tracking-widest text-sm">Total</span>
-          <span className="text-3xl font-serif font-bold text-accent">€{Number(order.total_price || 0).toFixed(2)}</span>
+          <span className="text-3xl font-serif font-bold text-accent">{Number(order.total_price || 0).toFixed(2)} DEN</span>
         </div>
       </div>
 

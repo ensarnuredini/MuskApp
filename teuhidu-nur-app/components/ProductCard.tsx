@@ -57,7 +57,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
         <Text style={styles.name} numberOfLines={1}>
           {product.name}
         </Text>
-        <Text style={styles.price}>From €{lowestPrice}</Text>
+        <Text style={styles.price}>From {lowestPrice} DEN</Text>
       </View>
     </TouchableOpacity>
   )
