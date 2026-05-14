@@ -1,4 +1,4 @@
-import { cn } from '../lib/utils'; // Wait, I need to create this lib
+import { cn } from '../lib/utils';
 import { X, Minus, Plus } from 'lucide-react';
 import type { Product } from '../types';
 import { useState, useMemo } from 'react';
@@ -43,7 +43,7 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
       addToCart({
         productId: product.id,
         productName: product.name,
-        productImage: imageUrl,
+        productImage: product.image_url,
         type,
         size,
         price: currentPrice,

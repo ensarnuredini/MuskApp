@@ -30,10 +30,21 @@ export function Cart() {
       const orderNumber = generateOrderNumber();
       const total = getTotal();
 
+      // Transform items to match the database schema expected by the admin panel
+      const dbItems = items.map(item => ({
+        id: item.productId,
+        name: item.productName,
+        image_url: item.productImage,
+        type: item.type,
+        ml: item.size,
+        price: item.price,
+        quantity: item.quantity
+      }));
+
       // Save to Supabase
       const { error } = await supabase.from('orders').insert({
         order_number: orderNumber,
-        items,
+        items: dbItems,
         total_price: total,
         status: 'pending'
       });
