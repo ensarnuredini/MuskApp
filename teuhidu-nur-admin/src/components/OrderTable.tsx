@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import type { Order, OrderStatus } from '../types'
 import { supabase } from '../lib/supabase'
 
@@ -6,8 +6,6 @@ interface OrderTableProps {
   orders: Order[]
   onRefresh: () => void
 }
-
-const ORDER_STATUSES: OrderStatus[] = ['pending', 'completed', 'cancelled']
 
 const statusLabels: Record<OrderStatus, string> = {
   pending: 'Pending',
@@ -21,21 +19,12 @@ const statusClasses: Record<OrderStatus, string> = {
   cancelled: 'bg-red-50 text-red-700 border-red-200',
 }
 
-const buttonClasses: Record<OrderStatus, string> = {
-  pending: 'border-amber-200 bg-amber-50 text-amber-700',
-  completed: 'border-green-200 bg-green-50 text-green-700',
-  cancelled: 'border-red-200 bg-red-50 text-red-700',
-}
-
 const formatMoney = (value: number) => `EUR ${Number(value || 0).toFixed(2)}`
 
 export const OrderTable: React.FC<OrderTableProps> = ({ orders, onRefresh }) => {
-  const [updatingId, setUpdatingId] = useState<string | null>(null)
-
   const updateStatus = async (order: Order, status: OrderStatus) => {
     if (order.status === status) return
 
-    setUpdatingId(order.id)
     const { error } = await supabase
       .from('orders')
       .update({ status })
@@ -46,8 +35,6 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders, onRefresh }) => 
     } else {
       onRefresh()
     }
-
-    setUpdatingId(null)
   }
 
   const handleDelete = async (orderId: string) => {
@@ -93,7 +80,6 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders, onRefresh }) => 
           {orders.map((order) => {
             const previewItems = order.items.slice(0, 2)
             const extraItems = order.items.length - previewItems.length
-            const isUpdating = updatingId === order.id
 
             return (
               <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50 align-top">
