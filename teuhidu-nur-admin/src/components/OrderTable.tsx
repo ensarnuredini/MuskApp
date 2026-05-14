@@ -1,85 +1,185 @@
-import React from 'react';
-import { supabase } from '../lib/supabase';
-import type { Order } from '../types';
+import React, { useState } from 'react'
+import type { Order, OrderStatus } from '../types'
+import { supabase } from '../lib/supabase'
 
 interface OrderTableProps {
-  orders: Order[];
-  onRefresh: () => void;
+  orders: Order[]
+  onRefresh: () => void
 }
 
+const ORDER_STATUSES: OrderStatus[] = ['pending', 'completed', 'cancelled']
+
+const statusLabels: Record<OrderStatus, string> = {
+  pending: 'Pending',
+  completed: 'Completed',
+  cancelled: 'Cancelled',
+}
+
+const statusClasses: Record<OrderStatus, string> = {
+  pending: 'bg-amber-50 text-amber-700 border-amber-200',
+  completed: 'bg-green-50 text-green-700 border-green-200',
+  cancelled: 'bg-red-50 text-red-700 border-red-200',
+}
+
+const buttonClasses: Record<OrderStatus, string> = {
+  pending: 'border-amber-200 bg-amber-50 text-amber-700',
+  completed: 'border-green-200 bg-green-50 text-green-700',
+  cancelled: 'border-red-200 bg-red-50 text-red-700',
+}
+
+const formatMoney = (value: number) => `EUR ${Number(value || 0).toFixed(2)}`
+
 export const OrderTable: React.FC<OrderTableProps> = ({ orders, onRefresh }) => {
-  const handleStatusChange = async (orderId: string, newStatus: string) => {
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
+
+  const updateStatus = async (order: Order, status: OrderStatus) => {
+    if (order.status === status) return
+
+    setUpdatingId(order.id)
+    const { error } = await supabase
+      .from('orders')
+      .update({ status })
+      .eq('id', order.id)
+
+    if (error) {
+      alert(`Could not update order ${order.order_number}: ${error.message}`)
+    } else {
+      onRefresh()
+    }
+
+    setUpdatingId(null)
+  }
+
+  const handleDelete = async (orderId: string) => {
+    if (!window.confirm('Are you sure you want to delete this order? This action cannot be undone.')) return;
+    
     try {
       const { error } = await supabase
         .from('orders')
-        .update({ status: newStatus })
+        .delete()
         .eq('id', orderId);
 
       if (error) throw error;
       onRefresh();
     } catch (err) {
-      console.error('Error updating status:', err);
-      alert('Failed to update order status');
+      console.error('Error deleting order:', err);
+      alert('Failed to delete order');
     }
   };
 
   if (orders.length === 0) {
-    return <div className="p-8 text-center text-gray-500">No orders found.</div>;
+    return (
+      <div className="text-center py-16 text-gray-400">
+        <p className="text-lg">No orders yet</p>
+        <p className="text-sm mt-1">New WhatsApp orders will appear here.</p>
+      </div>
+    )
   }
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-sm text-gray-600">
-        <thead className="bg-gray-50 border-b border-gray-200 text-xs uppercase text-gray-500 font-semibold">
-          <tr>
-            <th className="px-6 py-4">Order Number</th>
-            <th className="px-6 py-4">Date</th>
-            <th className="px-6 py-4">Items</th>
-            <th className="px-6 py-4">Total</th>
-            <th className="px-6 py-4">Status</th>
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-gray-200">
+            <th className="text-left py-3 px-4 font-semibold text-gray-600">Order</th>
+            <th className="text-left py-3 px-4 font-semibold text-gray-600">Items</th>
+            <th className="text-left py-3 px-4 font-semibold text-gray-600">Total</th>
+            <th className="text-left py-3 px-4 font-semibold text-gray-600">Status</th>
+            <th className="text-left py-3 px-4 font-semibold text-gray-600">Date</th>
+            <th className="text-right py-3 px-4 font-semibold text-gray-600">Change Status</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200">
-          {orders.map((order) => (
-            <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-              <td className="px-6 py-4 font-bold text-gray-900">{order.order_number}</td>
-              <td className="px-6 py-4">
-                {new Date(order.created_at).toLocaleDateString('en-US', {
-                  month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                })}
-              </td>
-              <td className="px-6 py-4 max-w-xs">
-                <div className="flex flex-col gap-1">
-                  {order.items.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-gray-200 rounded overflow-hidden flex-shrink-0">
-                        {item.image_url && <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />}
+        <tbody>
+          {orders.map((order) => {
+            const previewItems = order.items.slice(0, 2)
+            const extraItems = order.items.length - previewItems.length
+            const isUpdating = updatingId === order.id
+
+            return (
+              <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50 align-top">
+                <td className="py-4 px-4">
+                  <a
+                    href={`/order/${order.order_number}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-semibold text-gray-900 hover:text-amber-700"
+                  >
+                    {order.order_number}
+                  </a>
+                  <p className="text-xs text-gray-400 mt-1">{order.items.length} item{order.items.length === 1 ? '' : 's'}</p>
+                </td>
+                <td className="py-4 px-4 min-w-72">
+                  <div className="space-y-2">
+                    {previewItems.map((item, index) => (
+                      <div key={`${order.id}-${item.id ?? item.name}-${index}`} className="flex items-center gap-3">
+                        {item.image_url ? (
+                          <img src={item.image_url} alt={item.name} className="w-10 h-12 rounded-md object-cover bg-gray-100" />
+                        ) : (
+                          <div className="w-10 h-12 rounded-md bg-gray-100 text-[10px] text-gray-400 flex items-center justify-center">No img</div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="font-medium text-gray-900 truncate">{item.name}</p>
+                          <p className="text-xs text-gray-500 capitalize">
+                            {item.type} - {item.ml}ml - Qty {item.quantity}
+                          </p>
+                        </div>
                       </div>
-                      <span className="truncate">{item.quantity}x {item.name} ({item.ml}ml)</span>
-                    </div>
-                  ))}
-                </div>
-              </td>
-              <td className="px-6 py-4 font-semibold text-gray-900">€{order.total_price?.toFixed(2)}</td>
-              <td className="px-6 py-4">
-                <select
-                  value={order.status}
-                  onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                  className={`text-sm rounded-lg px-3 py-1.5 border font-semibold outline-none cursor-pointer ${
-                    order.status === 'completed' ? 'bg-green-50 text-green-700 border-green-200' :
-                    order.status === 'cancelled' ? 'bg-red-50 text-red-700 border-red-200' :
-                    'bg-amber-50 text-amber-700 border-amber-200'
-                  }`}
-                >
-                  <option value="pending">Pending</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </td>
-            </tr>
-          ))}
+                    ))}
+                    {extraItems > 0 && (
+                      <p className="text-xs text-gray-500">+ {extraItems} more item{extraItems === 1 ? '' : 's'}</p>
+                    )}
+                  </div>
+                </td>
+                <td className="py-4 px-4 font-semibold text-gray-900 whitespace-nowrap">
+                  {formatMoney(order.total_price)}
+                </td>
+                <td className="py-4 px-4">
+                  <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClasses[order.status]}`}>
+                    {statusLabels[order.status]}
+                  </span>
+                </td>
+                <td className="py-4 px-4 text-gray-500 whitespace-nowrap">
+                  {new Date(order.created_at).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </td>
+                <td className="py-4 px-4">
+                  <div className="flex items-center justify-end gap-3">
+                    <select
+                      value={order.status}
+                      onChange={(e) => updateStatus(order, e.target.value as OrderStatus)}
+                      className={`text-sm rounded-lg px-3 py-1.5 border font-semibold outline-none cursor-pointer ${
+                        order.status === 'completed' ? 'bg-green-50 text-green-700 border-green-200' :
+                        order.status === 'cancelled' ? 'bg-red-50 text-red-700 border-red-200' :
+                        'bg-amber-50 text-amber-700 border-amber-200'
+                      }`}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                    <button
+                      onClick={() => handleDelete(order.id)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
+                      title="Delete Order"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 6h18"></path>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
-  );
-};
+  )
+}

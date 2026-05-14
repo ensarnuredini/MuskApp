@@ -53,6 +53,13 @@ export const PublicOrder: React.FC = () => {
     )
   }
 
+  const statusClass =
+    order.status === 'completed'
+      ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+      : order.status === 'cancelled'
+        ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+        : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-amber-500/30">
       <div className="max-w-2xl mx-auto px-6 py-12 sm:py-20">
@@ -77,11 +84,7 @@ export const PublicOrder: React.FC = () => {
               <p className="text-lg font-bold tracking-wide">{order.order_number}</p>
             </div>
             <div className="mt-4 sm:mt-0">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase ${
-                order.status === 'completed' 
-                  ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
-                  : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-              }`}>
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase ${statusClass}`}>
                 {order.status}
               </span>
             </div>
@@ -128,7 +131,7 @@ export const PublicOrder: React.FC = () => {
             </div>
             <div className="text-center sm:text-right w-full sm:w-auto">
               <p className="text-sm text-gray-500 mb-1">Total Amount</p>
-              <p className="text-3xl font-bold text-amber-500">€{order.total_price}</p>
+              <p className="text-3xl font-bold text-amber-500">€{Number(order.total_price || 0).toFixed(2)}</p>
             </div>
           </div>
         </div>

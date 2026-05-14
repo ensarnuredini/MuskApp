@@ -3,6 +3,7 @@ export type Intensity = 'light' | 'moderate' | 'strong'
 export type ScentFamily = 'oud' | 'floral' | 'woody' | 'fresh' | 'oriental' | 'citrus' | 'musky'
 export type Season = 'spring' | 'summer' | 'autumn' | 'winter'
 export type Occasion = 'daily' | 'evening' | 'special'
+export type OrderStatus = 'pending' | 'completed' | 'cancelled'
 
 export interface Accord {
   name: string
@@ -39,6 +40,7 @@ export const OCCASIONS: Occasion[] = ['daily', 'evening', 'special']
 export const INTENSITIES: Intensity[] = ['light', 'moderate', 'strong']
 
 export interface OrderItem {
+  id?: string
   name: string
   type: 'musk' | 'spray'
   ml: number
@@ -52,6 +54,6 @@ export interface Order {
   order_number: string
   items: OrderItem[]
   total_price: number
-  status: 'pending' | 'completed' | 'cancelled'
+  status: OrderStatus
   created_at: string
 }

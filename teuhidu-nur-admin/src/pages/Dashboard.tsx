@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import type { Product } from '../types'
+import type { Order, Product } from '../types'
 import { ProductTable } from '../components/ProductTable'
 import { ProductForm } from '../components/ProductForm'
 import { OrderTable } from '../components/OrderTable'
-import type { Order } from '../types'
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -23,14 +22,12 @@ export const Dashboard: React.FC = () => {
 
   const fetchData = useCallback(async () => {
     setLoading(true)
-    
-    // Fetch Products
+
     const { data: productsData } = await supabase
       .from('products')
       .select('*')
       .order('created_at', { ascending: false })
-      
-    // Fetch Orders
+
     const { data: ordersData } = await supabase
       .from('orders')
       .select('*')
