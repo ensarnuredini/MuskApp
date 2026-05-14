@@ -83,11 +83,11 @@ export function OrderConfirmation() {
               <div key={idx} className="flex justify-between items-center bg-background/50 p-4 rounded-xl">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-black rounded-md overflow-hidden shrink-0">
-                    {item.productImage && <img src={item.productImage} alt={item.productName} className="w-full h-full object-cover opacity-80" />}
+                    {item.image_url && <img src={item.image_url} alt={item.name} className="w-full h-full object-cover opacity-80" />}
                   </div>
                   <div>
-                    <p className="font-semibold text-primary">{item.productName}</p>
-                    <p className="text-xs text-secondary capitalize">{item.type} • {item.size}ml • Qty: {item.quantity}</p>
+                    <p className="font-semibold text-primary">{item.name}</p>
+                    <p className="text-xs text-secondary capitalize">{item.type} • {item.ml}ml • Qty: {item.quantity}</p>
                   </div>
                 </div>
                 <p className="font-semibold">€{(item.price * item.quantity).toFixed(2)}</p>
