@@ -21,6 +21,6 @@ export interface Order {
   order_number: string;
   items: any[];
   total_price: number;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  status: 'pending' | 'completed' | 'cancelled';
   created_at: string;
 }

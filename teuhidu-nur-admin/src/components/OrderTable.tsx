@@ -37,23 +37,6 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders, onRefresh }) => 
     }
   }
 
-  const handleDelete = async (orderId: string) => {
-    if (!window.confirm('Are you sure you want to delete this order? This action cannot be undone.')) return;
-    
-    try {
-      const { error } = await supabase
-        .from('orders')
-        .delete()
-        .eq('id', orderId);
-
-      if (error) throw error;
-      onRefresh();
-    } catch (err) {
-      console.error('Error deleting order:', err);
-      alert('Failed to delete order');
-    }
-  };
-
   if (orders.length === 0) {
     return (
       <div className="text-center py-16 text-gray-400">
@@ -125,16 +108,20 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders, onRefresh }) => 
                   </span>
                 </td>
                 <td className="py-4 px-4 text-gray-500 whitespace-nowrap">
-                  {new Date(order.created_at).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
+                  {(() => {
+                    const dateStr = order.created_at;
+                    const date = new Date(dateStr.includes('Z') || dateStr.includes('+') ? dateStr : `${dateStr.replace(' ', 'T')}Z`);
+                    return date.toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    });
+                  })()}
                 </td>
                 <td className="py-4 px-4">
-                  <div className="flex items-center justify-end gap-3">
+                  <div className="flex justify-end">
                     <select
                       value={order.status}
                       onChange={(e) => updateStatus(order, e.target.value as OrderStatus)}
@@ -148,17 +135,6 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders, onRefresh }) => 
                       <option value="completed">Completed</option>
                       <option value="cancelled">Cancelled</option>
                     </select>
-                    <button
-                      onClick={() => handleDelete(order.id)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
-                      title="Delete Order"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M3 6h18"></path>
-                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                      </svg>
-                    </button>
                   </div>
                 </td>
               </tr>

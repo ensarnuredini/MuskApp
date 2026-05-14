@@ -51,8 +51,8 @@ export function OrderConfirmation() {
 
   const getStatusDisplay = () => {
     switch (order.status) {
-      case 'confirmed':
-        return <div className="flex items-center gap-2 text-green-500 bg-green-500/10 px-4 py-2 rounded-full font-semibold"><CheckCircle2 className="w-5 h-5"/> Confirmed</div>;
+      case 'completed':
+        return <div className="flex items-center gap-2 text-green-500 bg-green-500/10 px-4 py-2 rounded-full font-semibold"><CheckCircle2 className="w-5 h-5"/> Completed</div>;
       case 'cancelled':
         return <div className="flex items-center gap-2 text-red-500 bg-red-500/10 px-4 py-2 rounded-full font-semibold"><XCircle className="w-5 h-5"/> Cancelled</div>;
       default:
@@ -70,9 +70,13 @@ export function OrderConfirmation() {
             {getStatusDisplay()}
           </div>
           <p className="text-xs text-secondary mt-4">
-            Placed on {new Date(order.created_at).toLocaleDateString('en-US', {
-              year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-            })}
+            Placed on {(() => {
+              const dateStr = order.created_at;
+              const date = new Date(dateStr.includes('Z') || dateStr.includes('+') ? dateStr : `${dateStr.replace(' ', 'T')}Z`);
+              return date.toLocaleDateString('en-US', {
+                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+              });
+            })()}
           </p>
         </div>
 
@@ -98,7 +102,7 @@ export function OrderConfirmation() {
 
         <div className="mt-8 pt-8 border-t border-white/5 flex justify-between items-end">
           <span className="text-secondary uppercase tracking-widest text-sm">Total</span>
-          <span className="text-3xl font-serif font-bold text-accent">€{order.total_price?.toFixed(2)}</span>
+          <span className="text-3xl font-serif font-bold text-accent">€{Number(order.total_price || 0).toFixed(2)}</span>
         </div>
       </div>
 

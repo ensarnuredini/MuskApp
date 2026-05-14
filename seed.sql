@@ -17,7 +17,7 @@ create table if not exists products (
   occasion text[],
   accords jsonb,
   prices jsonb not null,
-  created_at timestamp default now()
+  created_at timestamptz default now()
 );
 
 -- 2. Enable Row Level Security
@@ -116,8 +116,8 @@ create table if not exists orders (
   order_number text not null unique,
   items jsonb not null,
   total_price numeric not null,
-  status text not null check (status in ('pending', 'completed')) default 'pending',
-  created_at timestamp default now()
+  status text not null check (status in ('pending', 'completed', 'cancelled')) default 'pending',
+  created_at timestamptz default now()
 );
 
 -- 7. Enable RLS and Policies for orders

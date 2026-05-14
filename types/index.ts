@@ -52,6 +52,6 @@ export interface Order {
   order_number: string
   items: OrderItem[]
   total_price: number
-  status: 'pending' | 'completed'
+  status: 'pending' | 'completed' | 'cancelled'
   created_at: string
 }

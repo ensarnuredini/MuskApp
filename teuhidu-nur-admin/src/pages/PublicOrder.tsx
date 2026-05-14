@@ -120,13 +120,17 @@ export const PublicOrder: React.FC = () => {
             <div className="text-center sm:text-left">
               <p className="text-sm text-gray-500">Date Ordered</p>
               <p className="text-sm font-medium text-gray-300">
-                {new Date(order.created_at).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
+                {(() => {
+                  const dateStr = order.created_at;
+                  const date = new Date(dateStr.includes('Z') || dateStr.includes('+') ? dateStr : `${dateStr.replace(' ', 'T')}Z`);
+                  return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  });
+                })()}
               </p>
             </div>
             <div className="text-center sm:text-right w-full sm:w-auto">
