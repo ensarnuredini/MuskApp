@@ -89,6 +89,10 @@ export const Dashboard: React.FC = () => {
     setOrders((ordersData as Order[]) ?? [])
   }
 
+  const handleOrderDeleted = (orderId: string) => {
+    setOrders(prev => prev.filter(o => o.id !== orderId))
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Bar */}
@@ -159,7 +163,7 @@ export const Dashboard: React.FC = () => {
               onProductDeleted={handleProductDeleted}
             />
           ) : (
-            <OrderTable orders={orders} onRefresh={handleOrderRefresh} />
+            <OrderTable orders={orders} onRefresh={handleOrderRefresh} onOrderDeleted={handleOrderDeleted} />
           )}
         </div>
       </main>

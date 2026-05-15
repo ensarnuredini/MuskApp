@@ -2,6 +2,7 @@ import { cn } from '../lib/utils';
 import { X, Minus, Plus } from 'lucide-react';
 import type { Product } from '../types';
 import { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useCartStore } from '../store/cartStore';
 
 interface ProductModalProps {
@@ -55,10 +56,10 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
 
   const outOfStock = !product.in_stock;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 pb-0 bg-black/80 backdrop-blur-sm" onClick={onClose}>
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 pb-0 bg-black/80 backdrop-blur-sm" onClick={onClose}>
       <div 
-        className="w-full max-w-lg bg-card rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col max-h-[90vh] shadow-2xl relative border border-white/10"
+        className="w-full max-w-lg bg-card rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col max-h-[90vh] shadow-2xl relative z-[110] border border-white/10"
         onClick={e => e.stopPropagation()}
       >
         <button 
@@ -193,6 +194,7 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

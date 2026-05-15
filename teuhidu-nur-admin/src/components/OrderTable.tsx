@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 interface OrderTableProps {
   orders: Order[]
   onRefresh: () => void
+  onOrderDeleted?: (orderId: string) => void
 }
 
 const statusLabels: Record<OrderStatus, string> = {
@@ -21,7 +22,7 @@ const statusClasses: Record<OrderStatus, string> = {
 
 const formatMoney = (value: number) => `${Number(value || 0).toFixed(2)} DEN`
 
-export const OrderTable: React.FC<OrderTableProps> = ({ orders, onRefresh }) => {
+export const OrderTable: React.FC<OrderTableProps> = ({ orders, onRefresh, onOrderDeleted }) => {
   const updateStatus = async (order: Order, status: OrderStatus) => {
     if (order.status === status) return
 
@@ -32,6 +33,26 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders, onRefresh }) => 
 
     if (error) {
       alert(`Could not update order ${order.order_number}: ${error.message}`)
+    } else {
+      onRefresh()
+    }
+  }
+
+  const handleDelete = async (order: Order) => {
+    if (!window.confirm(`Are you sure you want to delete order #${order.order_number}?`)) return
+    
+    const { error } = await supabase
+      .from('orders')
+      .delete()
+      .eq('id', order.id)
+      
+    if (error) {
+      alert(`Failed to delete order: ${error.message}`)
+      return
+    }
+    
+    if (onOrderDeleted) {
+      onOrderDeleted(order.id)
     } else {
       onRefresh()
     }
@@ -121,7 +142,7 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders, onRefresh }) => 
                   })()}
                 </td>
                 <td className="py-4 px-4">
-                  <div className="flex justify-end">
+                  <div className="flex justify-end gap-2">
                     <select
                       value={order.status}
                       onChange={(e) => updateStatus(order, e.target.value as OrderStatus)}
@@ -135,6 +156,13 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders, onRefresh }) => 
                       <option value="completed">Completed</option>
                       <option value="cancelled">Cancelled</option>
                     </select>
+                    <button
+                      onClick={() => handleDelete(order)}
+                      className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                      title="Delete Order"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </td>
               </tr>
