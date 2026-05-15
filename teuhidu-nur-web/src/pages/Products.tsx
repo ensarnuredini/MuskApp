@@ -20,6 +20,15 @@ export function Products() {
     intensity: [] as string[],
   });
 
+  const handleClearAll = () => {
+    setSearchQuery('');
+    setFilters({ season: [], scent: [], intensity: [] });
+  };
+
+  const hasActiveFilters = useMemo(() => 
+    filters.season.length > 0 || filters.scent.length > 0 || filters.intensity.length > 0
+  , [filters]);
+
   useEffect(() => {
     async function fetchProducts() {
       setLoading(true);
@@ -112,10 +121,11 @@ export function Products() {
           <div className="text-center py-20">
             <p className="text-secondary">No products found matching your filters.</p>
             <button 
-              onClick={() => setFilters({ season: [], scent: [], intensity: [] })}
+              onClick={handleClearAll}
               className="mt-4 text-accent hover:underline text-sm font-semibold"
             >
-              Clear Filters
+              {searchQuery && hasActiveFilters ? 'Clear all search and filters' : 
+               searchQuery ? 'Clear search' : 'Clear filters'}
             </button>
           </div>
         )}
