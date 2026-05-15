@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Search, X } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Product } from '../types';
@@ -11,6 +12,7 @@ export function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [filters, setFilters] = useState({
     season: [] as string[],
@@ -43,6 +45,8 @@ export function Products() {
 
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
+      const matchSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+
       // AND logic between categories, OR logic within category
       const matchSeason = filters.season.length === 0 || 
         product.season?.some(s => filters.season.includes(s));
@@ -53,12 +57,34 @@ export function Products() {
       const matchIntensity = filters.intensity.length === 0 || 
         filters.intensity.includes(product.intensity);
 
-      return matchSeason && matchScent && matchIntensity;
+      return matchSearch && matchSeason && matchScent && matchIntensity;
     });
-  }, [products, filters]);
+  }, [products, filters, searchQuery]);
 
   return (
     <div className="flex-1 flex flex-col relative pb-8">
+      {/* Sticky Search Bar */}
+      <div className="w-full sticky top-16 z-40 bg-background/95 backdrop-blur-md border-b border-white/5 py-3 px-4">
+        <div className="max-w-5xl mx-auto relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary" />
+          <input
+            type="text"
+            placeholder="Search by name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-card border border-white/10 rounded-xl py-3 pl-11 pr-10 text-primary placeholder:text-secondary focus:outline-none focus:border-accent transition-colors"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary hover:text-primary flex items-center justify-center"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+
       <FilterBar filters={filters} setFilters={setFilters} />
       
       <div className="max-w-5xl mx-auto px-4 mt-6 w-full">

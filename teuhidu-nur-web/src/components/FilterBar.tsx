@@ -30,7 +30,7 @@ export function FilterBar({ filters, setFilters }: FilterBarProps) {
   };
 
   return (
-    <div className="w-full bg-background/95 backdrop-blur-md sticky top-16 z-30 border-b border-white/5 pb-2">
+    <div className="w-full bg-background/95 border-b border-white/5 pb-2">
       <div className="max-w-5xl mx-auto px-4 py-3 flex flex-col gap-3">
         {(Object.keys(CATEGORIES) as Array<keyof typeof CATEGORIES>).map(category => (
           <div key={category} className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
