@@ -9,7 +9,6 @@ import type {
 import {
   SCENT_FAMILIES,
   SEASONS,
-  OCCASIONS,
   INTENSITIES,
 } from '../types'
 import { supabase } from '../lib/supabase'
@@ -31,7 +30,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, onSa
   const [scentFamily, setScentFamily] = useState<string[]>(product?.scent_family ?? [])
   const [season, setSeason] = useState<string[]>(product?.season ?? [])
   const [intensity, setIntensity] = useState<Intensity>(product?.intensity ?? 'moderate')
-  const [occasion, setOccasion] = useState<string[]>(product?.occasion ?? [])
+
   const [accords, setAccords] = useState<Accord[]>(
     product?.accords ?? [{ name: '', color: '#c9a84c' }]
   )
@@ -79,7 +78,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, onSa
       const data = {
         name: name.trim(), gender, description: description.trim(),
         image_url: imageUrl, scent_family: scentFamily, season, intensity,
-        occasion, accords: validAccords, prices, in_stock: inStock,
+        accords: validAccords, prices, in_stock: inStock,
       }
 
       if (isEditing && product) {
@@ -177,17 +176,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, onSa
             </div>
           </div>
 
-          {/* Occasion */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Occasion</label>
-            <div className="flex flex-wrap gap-2">
-              {OCCASIONS.map((o) => (
-                <label key={o} className={chipClass(occasion.includes(o))}>
-                  <input type="checkbox" className="hidden" checked={occasion.includes(o)} onChange={() => toggleArr(occasion, o, setOccasion)} />{o}
-                </label>
-              ))}
-            </div>
-          </div>
+
 
           {/* Accords */}
           <div>

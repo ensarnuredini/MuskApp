@@ -2,7 +2,6 @@ export type Gender = 'male' | 'female' | 'unisex'
 export type Intensity = 'light' | 'moderate' | 'strong'
 export type ScentFamily = 'oud' | 'floral' | 'woody' | 'fresh' | 'oriental' | 'citrus' | 'musky'
 export type Season = 'spring' | 'summer' | 'autumn' | 'winter'
-export type Occasion = 'daily' | 'evening' | 'special'
 export type OrderStatus = 'pending' | 'completed' | 'cancelled'
 
 export interface Accord {
@@ -25,7 +24,6 @@ export interface Product {
   scent_family: ScentFamily[]
   season: Season[]
   intensity: Intensity
-  occasion: Occasion[]
   accords: Accord[]
   prices: ProductPrices
   created_at: string
@@ -37,7 +35,6 @@ export const CURRENCY = 'DEN'
 
 export const SCENT_FAMILIES: ScentFamily[] = ['oud', 'floral', 'woody', 'fresh', 'oriental', 'citrus', 'musky']
 export const SEASONS: Season[] = ['spring', 'summer', 'autumn', 'winter']
-export const OCCASIONS: Occasion[] = ['daily', 'evening', 'special']
 export const INTENSITIES: Intensity[] = ['light', 'moderate', 'strong']
 
 export interface OrderItem {
