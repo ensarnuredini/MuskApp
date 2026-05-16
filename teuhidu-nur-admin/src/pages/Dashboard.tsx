@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { Order, Product } from '../types'
@@ -94,18 +94,13 @@ export const Dashboard: React.FC = () => {
     setOrders(prev => prev.filter(o => o.id !== orderId))
   }
 
-  // Filtered lists based on search query
-  const filteredProducts = useMemo(() => {
-    if (!searchQuery.trim()) return products
-    const q = searchQuery.toLowerCase()
-    return products.filter(p => p.name.toLowerCase().includes(q))
-  }, [products, searchQuery])
+  const filteredProducts = products.filter(p => 
+    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
-  const filteredOrders = useMemo(() => {
-    if (!searchQuery.trim()) return orders
-    const q = searchQuery.toLowerCase()
-    return orders.filter(o => o.order_number.toLowerCase().includes(q))
-  }, [orders, searchQuery])
+  const filteredOrders = orders.filter(o => 
+    o.order_number.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -131,7 +126,7 @@ export const Dashboard: React.FC = () => {
         {/* Tabs */}
         <div className="flex space-x-4 border-b border-gray-200 mb-6">
           <button
-            onClick={() => { setActiveTab('orders'); setSearchQuery('') }}
+            onClick={() => setActiveTab('orders')}
             className={`py-2 px-4 text-sm font-semibold border-b-2 transition-colors ${
               activeTab === 'orders' 
                 ? 'border-amber-600 text-amber-600' 
@@ -141,7 +136,7 @@ export const Dashboard: React.FC = () => {
             Orders ({orders.length})
           </button>
           <button
-            onClick={() => { setActiveTab('products'); setSearchQuery('') }}
+            onClick={() => setActiveTab('products')}
             className={`py-2 px-4 text-sm font-semibold border-b-2 transition-colors ${
               activeTab === 'products' 
                 ? 'border-amber-600 text-amber-600' 
@@ -152,42 +147,47 @@ export const Dashboard: React.FC = () => {
           </button>
         </div>
 
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <h2 className="text-lg font-semibold text-gray-800">
             {activeTab === 'orders' ? 'Manage Orders' : 'Manage Products'}
           </h2>
-          {activeTab === 'products' && (
-            <button
-              onClick={handleAddNew}
-              className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold rounded-lg transition-colors"
-            >
-              + Add Product
-            </button>
-          )}
-        </div>
-
-        {/* Search Bar */}
-        <div className="relative mb-6">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="text"
-            placeholder={activeTab === 'products' ? 'Search products by name...' : 'Search orders by order number...'}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          
+          <div className="flex flex-1 max-w-md gap-4">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder={activeTab === 'orders' ? "Search order #..." : "Search products..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 pl-10 pr-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
+              />
+              <svg 
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-            </button>
-          )}
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {activeTab === 'products' && (
+              <button
+                onClick={handleAddNew}
+                className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold rounded-lg transition-colors whitespace-nowrap"
+              >
+                + Add Product
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
