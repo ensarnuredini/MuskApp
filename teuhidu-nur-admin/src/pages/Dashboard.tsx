@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { Order, Product } from '../types'
@@ -14,6 +14,7 @@ export const Dashboard: React.FC = () => {
   const [showForm, setShowForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [activeTab, setActiveTab] = useState<'products' | 'orders'>('orders')
+  const [searchQuery, setSearchQuery] = useState('')
 
   const checkAuth = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession()
@@ -93,6 +94,19 @@ export const Dashboard: React.FC = () => {
     setOrders(prev => prev.filter(o => o.id !== orderId))
   }
 
+  // Filtered lists based on search query
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery.trim()) return products
+    const q = searchQuery.toLowerCase()
+    return products.filter(p => p.name.toLowerCase().includes(q))
+  }, [products, searchQuery])
+
+  const filteredOrders = useMemo(() => {
+    if (!searchQuery.trim()) return orders
+    const q = searchQuery.toLowerCase()
+    return orders.filter(o => o.order_number.toLowerCase().includes(q))
+  }, [orders, searchQuery])
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Bar */}
@@ -117,7 +131,7 @@ export const Dashboard: React.FC = () => {
         {/* Tabs */}
         <div className="flex space-x-4 border-b border-gray-200 mb-6">
           <button
-            onClick={() => setActiveTab('orders')}
+            onClick={() => { setActiveTab('orders'); setSearchQuery('') }}
             className={`py-2 px-4 text-sm font-semibold border-b-2 transition-colors ${
               activeTab === 'orders' 
                 ? 'border-amber-600 text-amber-600' 
@@ -127,7 +141,7 @@ export const Dashboard: React.FC = () => {
             Orders ({orders.length})
           </button>
           <button
-            onClick={() => setActiveTab('products')}
+            onClick={() => { setActiveTab('products'); setSearchQuery('') }}
             className={`py-2 px-4 text-sm font-semibold border-b-2 transition-colors ${
               activeTab === 'products' 
                 ? 'border-amber-600 text-amber-600' 
@@ -152,18 +166,42 @@ export const Dashboard: React.FC = () => {
           )}
         </div>
 
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder={activeTab === 'products' ? 'Search products by name...' : 'Search orders by order number...'}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           {loading ? (
             <div className="py-16 text-center text-gray-400">Loading...</div>
           ) : activeTab === 'products' ? (
             <ProductTable
-              products={products}
+              products={filteredProducts}
               onEdit={handleEdit}
               onProductUpdated={handleProductUpdated}
               onProductDeleted={handleProductDeleted}
             />
           ) : (
-            <OrderTable orders={orders} onRefresh={handleOrderRefresh} onOrderDeleted={handleOrderDeleted} />
+            <OrderTable orders={filteredOrders} onRefresh={handleOrderRefresh} onOrderDeleted={handleOrderDeleted} />
           )}
         </div>
       </main>
