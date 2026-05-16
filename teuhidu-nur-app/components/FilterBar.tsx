@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native'
-import { ScentFamily, Season, Intensity, Occasion } from '../types'
+import { ScentFamily, Season, Intensity } from '../types'
 
 interface FilterOption {
   label: string
@@ -52,14 +52,6 @@ const FILTER_CATEGORIES: FilterCategory[] = [
       { label: 'Strong', value: 'strong' },
     ],
   },
-  {
-    key: 'occasion',
-    label: 'Occasion',
-    options: [
-      { label: 'Daily', value: 'daily' },
-      { label: 'Evening', value: 'evening' },
-      { label: 'Special', value: 'special' },
-    ],
   },
 ]
 
@@ -67,7 +59,6 @@ export interface ActiveFilters {
   season: Season[]
   scent_family: ScentFamily[]
   intensity: Intensity[]
-  occasion: Occasion[]
 }
 
 interface FilterBarProps {
@@ -92,7 +83,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }
       season: [],
       scent_family: [],
       intensity: [],
-      occasion: [],
     })
   }
 

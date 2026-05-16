@@ -6,6 +6,8 @@ import {
   StyleSheet,
   ActivityIndicator,
   Dimensions,
+  TextInput,
+  TouchableOpacity,
 } from 'react-native'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { CatalogStackParamList } from './HomeScreen'
@@ -26,11 +28,11 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ route }) => {
   const [error, setError] = useState<string | null>(null)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [modalVisible, setModalVisible] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState<ActiveFilters>({
     season: [],
     scent_family: [],
     intensity: [],
-    occasion: [],
   })
 
   useEffect(() => {
@@ -45,7 +47,6 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ route }) => {
         .from('products')
         .select('*')
         .or(`gender.eq.${gender},gender.eq.unisex`)
-        .eq('in_stock', true)
         .order('created_at', { ascending: false })
 
       if (fetchError) throw fetchError
@@ -59,6 +60,14 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ route }) => {
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
+      // Search check
+      if (
+        searchQuery.trim() !== '' &&
+        !product.name.toLowerCase().includes(searchQuery.toLowerCase())
+      ) {
+        return false
+      }
+
       // AND between categories, OR within a category
       if (
         filters.season.length > 0 &&
@@ -78,15 +87,9 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ route }) => {
       ) {
         return false
       }
-      if (
-        filters.occasion.length > 0 &&
-        !filters.occasion.some((o) => product.occasion.includes(o))
-      ) {
-        return false
-      }
       return true
     })
-  }, [products, filters])
+  }, [products, filters, searchQuery])
 
   const handleProductPress = (product: Product) => {
     setSelectedProduct(product)
@@ -118,6 +121,26 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ route }) => {
 
   return (
     <View style={styles.container}>
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchInputWrapper}>
+          <Text style={styles.searchIcon}>🔍</Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search by name..."
+            placeholderTextColor="#666666"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            clearButtonMode="while-editing"
+          />
+          {searchQuery !== '' && (
+            <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearSearchX}>
+              <Text style={styles.clearSearchXText}>✕</Text>
+            </TouchableOpacity>
+          )}
+        </div>
+      </View>
+
       <FilterBar filters={filters} onFiltersChange={setFilters} />
 
       {filteredProducts.length === 0 ? (
@@ -197,5 +220,36 @@ const styles = StyleSheet.create({
   emptySubtext: {
     color: '#666666',
     fontSize: 14,
+  },
+  searchContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 4,
+  },
+  searchInputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 46,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  searchIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    color: '#ffffff',
+    fontSize: 15,
+  },
+  clearSearchX: {
+    padding: 4,
+  },
+  clearSearchXText: {
+    color: '#888888',
+    fontSize: 16,
   },
 })
