@@ -141,13 +141,26 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ route }) => {
         </div>
       </View>
 
-      <FilterBar filters={filters} onFiltersChange={setFilters} />
+      <FilterBar 
+        filters={filters} 
+        onFiltersChange={setFilters} 
+        onClear={() => setSearchQuery('')}
+      />
 
       {filteredProducts.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyIcon}>🔍</Text>
           <Text style={styles.emptyText}>No fragrances found</Text>
           <Text style={styles.emptySubtext}>Try adjusting your filters</Text>
+          <TouchableOpacity 
+            style={styles.emptyClearButton} 
+            onPress={() => {
+              setSearchQuery('')
+              setFilters({ season: [], scent_family: [], intensity: [] })
+            }}
+          >
+            <Text style={styles.emptyClearButtonText}>Clear all filters</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <FlatList
@@ -220,6 +233,21 @@ const styles = StyleSheet.create({
   emptySubtext: {
     color: '#666666',
     fontSize: 14,
+  },
+  emptyClearButton: {
+    marginTop: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 25,
+    backgroundColor: 'rgba(201,168,76,0.15)',
+    borderWidth: 1,
+    borderColor: '#c9a84c',
+  },
+  emptyClearButtonText: {
+    color: '#c9a84c',
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: 1,
   },
   searchContainer: {
     paddingHorizontal: 16,

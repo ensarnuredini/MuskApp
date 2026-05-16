@@ -64,9 +64,10 @@ export interface ActiveFilters {
 interface FilterBarProps {
   filters: ActiveFilters
   onFiltersChange: (filters: ActiveFilters) => void
+  onClear?: () => void
 }
 
-export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }) => {
+export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, onClear }) => {
   const hasActiveFilters = Object.values(filters).some((arr) => arr.length > 0)
 
   const toggleFilter = (category: string, value: string) => {
@@ -79,6 +80,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }
   }
 
   const clearAll = () => {
+    if (onClear) {
+      onClear()
+    }
     onFiltersChange({
       season: [],
       scent_family: [],
